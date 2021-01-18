@@ -1,11 +1,25 @@
 [package]
 name = "pacops"
-description = "Automation around PACMAN, the package manager"
-version = "0.1.0"
+description = "PKGBUILD maintainer Swiss Army knife"
+version = "0.0.1"
 authors = ["Vlad Petrov <ejiek@mail.ru>"]
 edition = "2018"
+licence = "GPL-3.0-or-later"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 clap = "2.33.3"
+reqwest = { version = "0.11", features = ["blocking", "json"] }
+version-compare = "0.0.11"
+select = "0.5.0"
+regex = "1.4.3"
+blake2 = "0.9.1"
+sha-1 = "0.9.3"
+sha2 = "0.9.3"
+md-5 = "0.9.1"
+tempfile = "3.2.0"
+shellexpand = "2.1"
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.5"
+dirs = "3.0"
