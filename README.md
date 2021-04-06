@@ -60,3 +60,7 @@ Makepkg variables:
 * Migrate of dummy parsing to [NomCup](https://github.com/ejiek/nomcup)
 * Clean chroot life cycle (create, update, delete)
 * Navigate user through repo creation
+
+# Alternatives
+
+* [Guzuta](https://github.com/eagletmt/guzuta) - Custom repository manager
