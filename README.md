@@ -13,6 +13,18 @@ It's not an AUR helper, but it's made to help you maintain PKGBUILD files.
 * AUR package maintenance (generate `.SRCINFO`, commit, subtree or regular push)
 * Repo maintenance (build, sign, add to a repo db, upload)
 
+# Development progress
+
+* Usable locally
+* Supports only debian repositories as upsteam, [example](https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-dev/) (with only one package and different version)
+* Builds locally or in a user-provided chroot
+* Commits updates with a commit message generate from a template
+* Updates a local system or a chroot
+* Somewhat runnable in Docker
+
+**Take part!**
+We have [discussions](https://github.com/ejiek/pacops/discussions), [issues](https://github.com/ejiek/pacops/issues) and [PRs](https://github.com/ejiek/pacops/pulls).
+
 # Install
 
 Should be available as
@@ -39,11 +51,12 @@ Makepkg variables:
 
 # Roadmap
 
-* Migrate of dummy parsing to [NomCup](https://github.com/ejiek/nomcup)
+* Documentation
 * GitHub as an upstream:
   * releases
   * tags
   * branches
 * Rootless containers (currently we don't have a workflow for rootless podman)
+* Migrate of dummy parsing to [NomCup](https://github.com/ejiek/nomcup)
 * Clean chroot life cycle (create, update, delete)
 * Navigate user through repo creation
