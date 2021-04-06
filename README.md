@@ -17,10 +17,10 @@ It's not an AUR helper, but it's made to help you maintain PKGBUILD files.
 
 Should be available as
 
-* AUR package
-* binary package in ejiek's repo
-* Cargo package
-* Docker image
+* [AUR package](https://aur.archlinux.org/packages/pacops/)
+* binary package in [ejiek's repository](https://ejiek.com/repository/)
+* [Cargo package](https://crates.io/crates/pacops)
+* [Docker image](https://hub.docker.com/r/ejiek/pacops)
 
 ## Docker usage
 
