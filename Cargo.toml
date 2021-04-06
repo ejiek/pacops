@@ -1,9 +1,12 @@
 [package]
 name = "pacops"
 description = "PKGBUILD maintainer Swiss Army knife"
+documentation = "https://docs.rs/pacops"
 version = "0.0.1"
 authors = ["Vlad Petrov <ejiek@mail.ru>"]
 edition = "2018"
+keywords = ["pacman", "pkgbuild", "archlinux"]
+categories = ["command-line-utilities", "development-tools::build-utils"]
 license = "GPL-3.0-or-later"
 license-file = "LICENSE"
 readme = "README.md"
