@@ -64,3 +64,5 @@ Makepkg variables:
 # Alternatives
 
 * [Guzuta](https://github.com/eagletmt/guzuta) - Custom repository manager
+* [repology](https://github.com/repology) - Monitors updates
+* [Chaotic AUR](https://aur.chaotic.cx/) - builds packages from AUR
