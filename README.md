@@ -2,7 +2,7 @@
 We're just testing ideas.
 Implementation might change completely.
 
-**PacOps** is a package maintainers Swiss Army knife.
+[**PacOps**](https://github.com/ejiek/pacops/) is a package maintainers Swiss Army knife.
 It's not an AUR helper, but it's made to help you maintain PKGBUILD files.
 
 # General Goals:
