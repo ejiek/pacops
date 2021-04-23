@@ -20,8 +20,11 @@ impl Update {
     pub fn hash(&self, hash_alg: HashAlg) -> Result<String, Box<dyn Error>> {
         let tmp_dir = Builder::new().prefix("example").tempdir()?;
         println!("New source: '{}'", &self.url);
-        let resp = reqwest::blocking::get(&self.url)?;
-        let dest = {
+        let client = reqwest::blocking::Client::builder()
+            .timeout(None)
+            .build()?;
+        let resp = client.get(&self.url).send()?;
+        let _dest = {
             let fname = resp
                 .url()
                 .path_segments()
