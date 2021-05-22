@@ -2,8 +2,12 @@ FROM rust:1.52.1 as builder
 
 WORKDIR /usr/src/pacops
 COPY . .
-RUN cargo build --release
-RUN strip target/release/pacops
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/home/rust/.cargo/git \
+    --mount=type=cache,sharing=private,target=/usr/src/pacops/target \
+    cargo build --release && \
+    strip target/release/pacops && \
+    cp /usr/src/pacops/target/release/pacops /usr/src/pacops
 
 FROM archlinux:base-devel
 LABEL version 0.0.1
@@ -14,5 +18,5 @@ RUN useradd --create-home --home-dir /usr/share/pacops pacops && /bin/echo -e 'C
 
 USER pacops
 WORKDIR /usr/share/pacops
-COPY --from=builder /usr/src/pacops/target/release/pacops /usr/bin/
+COPY --from=builder /usr/src/pacops/pacops /usr/bin/
 ENTRYPOINT ["/usr/bin/pacops"]
