@@ -111,7 +111,7 @@ fn update(context: context::Context) {
     let config = context.config();
     let path = pkgbuild.borrow().path().as_ref().unwrap().clone();
     let current_version = pkgbuild.borrow().version().as_ref().unwrap().clone();
-    let updates = pkgbuild.borrow().updates_available().unwrap();
+    let updates = pkgbuild.borrow().check_for_updates().unwrap();
     for update in &updates {
         println!(
             "Update available\n\t{} over {}",

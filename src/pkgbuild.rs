@@ -309,7 +309,7 @@ impl Pkgbuild {
     }
 
     // Returns update if it's newer than current version
-    pub fn updates_available(&self) -> Result<Vec<Update>, Box<dyn Error>> {
+    pub fn check_for_updates(&self) -> Result<Vec<Update>, Box<dyn Error>> {
         let mut updates: Vec<Update> = Vec::new();
         for source in &self.sources {
             if let Some(update) = source.update_available()? {
