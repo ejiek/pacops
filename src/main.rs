@@ -45,7 +45,7 @@ fn main() {
                 .short("l")
                 .long("local-build")
                 .help("Builds package locally. Useful when used inside a container.")
-                .takes_value(true),
+                .takes_value(false),
         )
         .arg(
             Arg::with_name("PKGBUILD")
