@@ -57,9 +57,10 @@ Makepkg variables:
   * tags
   * branches
 * Rootless containers (currently we don't have a workflow for rootless podman)
-* Migrate of dummy parsing to [NomCup](https://github.com/ejiek/nomcup)
+* Migrate from dummy parsing to [NomCup](https://github.com/ejiek/nomcup)
 * Clean chroot life cycle (create, update, delete)
 * Navigate user through repo creation
+* State awareness - what's in git, AUR, repo
 
 # Alternatives
 
