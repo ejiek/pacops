@@ -1,5 +1,6 @@
 extern crate shellexpand;
 
+use crate::chroot;
 use crate::config::{Build, Config};
 use crate::source::{Origin, Source};
 use crate::update::Update;
@@ -9,7 +10,7 @@ use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::process::{Command, Stdio};
 use std::rc::{Rc, Weak};
 use std::str;
 
@@ -356,6 +357,7 @@ pub fn build(pkgbuild_dir: &Path, settings: Rc<Config>) {
                         //.arg(-n) // Run namcap on the package
                         //.arg(-C) // Run checkpkg on the package
                         .arg("-T") // Build in a temporary directory
+                        .stdout(Stdio::inherit())
                         .output()
                         .expect("failed to execute process");
                     println!("{}", str::from_utf8(&mkchrtpkg.stdout).unwrap());
@@ -384,32 +386,16 @@ pub fn build(pkgbuild_dir: &Path, settings: Rc<Config>) {
     }
 }
 
-pub fn update(settings: Rc<Config>) {
+pub fn update_build_env(settings: Rc<Config>) -> Result<(), Box<dyn Error>> {
     match settings.build_type() {
-        Some(Build::Chroot) => {
-            match settings.chroot() {
-                Some(chroot_path) => {
-                    println!("Updating chroot");
-                    // change string into a path & check it
-                    let mut chroot_path = chroot_path.to_str().unwrap().to_string();
-                    if chroot_path.contains('~') {
-                        chroot_path = shellexpand::tilde(&chroot_path).into_owned();
-                    }
-                    let mkchrtpkg = Command::new("sudo")
-                        .arg("arch-nspawn")
-                        .arg(format!("{}/root", chroot_path))
-                        .arg("pacman")
-                        .arg("-Syu")
-                        .output()
-                        .expect("failed to execute process");
-                    println!("{}", str::from_utf8(&mkchrtpkg.stdout).unwrap());
-                    println!("{}", str::from_utf8(&mkchrtpkg.stderr).unwrap());
-                }
-                None => {
-                    println!("No chroot path");
-                }
+        Some(Build::Chroot) => match settings.chroot() {
+            Some(chroot_path) => chroot::update(chroot_path),
+            None => {
+                let error: Box<dyn std::error::Error> =
+                    String::from("The chroot path is not specified").into();
+                Err(error)
             }
-        }
+        },
         Some(Build::Local) => {
             let mkpkg = Command::new("sudo")
                 .arg("pacman")
@@ -420,12 +406,14 @@ pub fn update(settings: Rc<Config>) {
                 .expect("failed to execute process");
             println!("{}", str::from_utf8(&mkpkg.stdout).unwrap());
             println!("{}", str::from_utf8(&mkpkg.stderr).unwrap());
+            Ok(())
         }
-        _ => println!("We don't support this build method, yet. Sorry!"),
+        _ => {
+            let error: Box<dyn std::error::Error> = String::from("Unsupported build method").into();
+            Err(error)
+        }
     }
 }
-
-pub fn update_chroot(path: String) {}
 
 // take PKGBUILD path and writes
 pub fn srcinfo(pkgbuild_path: &Path) -> Result<(), Box<dyn Error>> {

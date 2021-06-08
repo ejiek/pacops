@@ -126,7 +126,7 @@ fn update(context: context::Context) {
     if updates.len() > 0 {
         // test build
         let pkgbuild_dir = path.parent().unwrap();
-        pkgbuild::update(config.clone());
+        pkgbuild::update_build_env(config.clone()).unwrap();
         pkgbuild::build(&pkgbuild_dir, config.clone());
         if let Some(true) = context.config().srcinfo() {
             pkgbuild::srcinfo(&path).unwrap();
