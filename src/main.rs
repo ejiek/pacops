@@ -5,8 +5,11 @@ extern crate version_compare;
 use std::path::PathBuf;
 use std::rc::Rc;
 
-use clap::{App, Arg};
+use clap::{App, AppSettings, Arg, SubCommand};
 
+use crate::config::Build;
+
+mod chroot;
 mod config;
 mod context;
 mod git;
@@ -19,11 +22,7 @@ fn main() {
         .version(clap::crate_version!())
         .author(clap::crate_authors!())
         .about(clap::crate_description!())
-        .arg(
-            Arg::with_name("commit")
-                .long("commit")
-                .help("Enables committing the change to a local git repo."),
-        )
+        .setting(AppSettings::SubcommandRequiredElseHelp)
         .arg(
             Arg::with_name("config")
                 .short("c")
@@ -48,20 +47,44 @@ fn main() {
                 .takes_value(false),
         )
         .arg(
-            Arg::with_name("PKGBUILD")
-                .help("Sets the PKGBUILD file to use.")
-                .required(true), // TODO: check if it's present in current dir instead
-        )
-        .arg(
-            Arg::with_name("srcinfo")
-                .long("srcinfo")
-                .help("Enables .SRCINFO generation, necessary for AUR packages."),
-        )
-        .arg(
             Arg::with_name("v")
                 .short("v")
                 .multiple(true)
                 .help("Sets the level of verbosity."),
+        )
+        .subcommand(
+            SubCommand::with_name("package")
+                .about("Which, How & Why of package building")
+                .setting(AppSettings::SubcommandRequiredElseHelp)
+                .arg(
+                    Arg::with_name("PKGBUILD")
+                        .help("Sets the PKGBUILD file to use.")
+                        .required(true), // TODO: check if it's present in current dir instead
+                )
+                .arg(
+                    Arg::with_name("commit")
+                        .long("commit")
+                        .help("Enables committing the change to a local git repo."),
+                )
+                .arg(
+                    Arg::with_name("srcinfo")
+                        .long("srcinfo")
+                        .help("Enables .SRCINFO generation, necessary for AUR packages."),
+                ),
+        )
+        .subcommand(
+            SubCommand::with_name("chroot")
+                .about("Manipulate chroots")
+                .setting(AppSettings::SubcommandRequiredElseHelp)
+                .subcommand(
+                    SubCommand::with_name("update")
+                        .about("updates build environment")
+                        .arg(
+                            Arg::with_name("CHROOT")
+                                .help("Path to the chroot to update.")
+                                .required(true), // TODO: use a default one or one from config
+                        ),
+                ),
         )
         .get_matches();
 
@@ -87,25 +110,41 @@ fn main() {
             .set_chroot(PathBuf::from(path));
     }
 
-    if matches.is_present("commit") {
-        Rc::get_mut(&mut config).unwrap().set_commit(true);
-    }
-
-    if matches.is_present("srcinfo") {
-        Rc::get_mut(&mut config).unwrap().set_srcinfo(true);
-    }
-
     let mut context = context::Context::new(config.clone());
-
-    if let Some(path) = matches.value_of("PKGBUILD") {
-        let pkgbuild = pkgbuild::Pkgbuild::from_file(&path).unwrap();
-        context = context.set_pkgbuild(pkgbuild);
-    }
 
     // check if we have any pkgbuild at this point
     context = context.set_config(config);
-    update(context)
+
+    if let Some(matches) = matches.subcommand_matches("chroot") {
+        if let Some(matches) = matches.subcommand_matches("update") {
+            let _config = context.config();
+            println!(
+                "Using chroot located in: {}",
+                matches.value_of("CHROOT").unwrap()
+            );
+        };
+    };
+
+    if let Some(matches) = matches.subcommand_matches("package") {
+        if matches.is_present("commit") {
+            let mut old_config = context.config().clone();
+            Rc::get_mut(&mut old_config).unwrap().set_commit(true);
+        }
+
+        if matches.is_present("srcinfo") {
+            let mut old_config = context.config().clone();
+            Rc::get_mut(&mut old_config).unwrap().set_srcinfo(true);
+        }
+
+        if let Some(path) = matches.value_of("PKGBUILD") {
+            let pkgbuild = pkgbuild::Pkgbuild::from_file(&path).unwrap();
+            context = context.set_pkgbuild(pkgbuild);
+
+            update(context)
+        }
+    };
 }
+
 fn update(context: context::Context) {
     let pkgbuild = context.pkgbuild().unwrap();
     let config = context.config();
