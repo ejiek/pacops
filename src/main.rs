@@ -32,21 +32,6 @@ fn main() {
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name("chroot")
-                .help("Path to a \"clean chroot\". Build will happen in chroot.")
-                .short("r")
-                .long("chroot")
-                .value_name("PATH")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("local-build")
-                .short("l")
-                .long("local-build")
-                .help("Builds package locally. Useful when used inside a container.")
-                .takes_value(false),
-        )
-        .arg(
             Arg::with_name("v")
                 .short("v")
                 .multiple(true)
@@ -83,6 +68,23 @@ fn main() {
                             Arg::with_name("CHROOT")
                                 .help("Path to the chroot to update.")
                                 .required(true), // TODO: use a default one or one from config
+                        )
+                        .arg(
+                            Arg::with_name("chroot")
+                                .help("Path to a \"clean chroot\". Build will happen in chroot.")
+                                .short("r")
+                                .long("chroot")
+                                .value_name("PATH")
+                                .takes_value(true),
+                        )
+                        .arg(
+                            Arg::with_name("local-build")
+                                .short("l")
+                                .long("local-build")
+                                .help(
+                                    "Builds package locally. Useful when used inside a container.",
+                                )
+                                .takes_value(false),
                         ),
                 ),
         )
