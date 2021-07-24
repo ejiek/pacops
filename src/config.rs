@@ -63,6 +63,10 @@ impl Config {
         self.srcinfo = Some(srcinfo);
     }
 
+    pub fn set_build(&mut self, build: Build) {
+        self.build = Some(build);
+    }
+
     // Look into dedup of get functions
     pub fn chroot(&self) -> Option<PathBuf> {
         if let Some(actual_chroot) = self.chroot.clone() {

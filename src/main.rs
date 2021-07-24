@@ -40,7 +40,6 @@ fn main() {
         .subcommand(
             SubCommand::with_name("package")
                 .about("Which, How & Why of package building")
-                .setting(AppSettings::SubcommandRequiredElseHelp)
                 .arg(
                     Arg::with_name("PKGBUILD")
                         .help("Sets the PKGBUILD file to use.")
@@ -49,12 +48,27 @@ fn main() {
                 .arg(
                     Arg::with_name("commit")
                         .long("commit")
-                        .help("Enables committing the change to a local git repo."),
+                        .help("Commits the change to a local git repo."),
                 )
                 .arg(
                     Arg::with_name("srcinfo")
                         .long("srcinfo")
-                        .help("Enables .SRCINFO generation, necessary for AUR packages."),
+                        .help("Generates .SRCINFO, useful for AUR packages."),
+                )
+                .arg(
+                    Arg::with_name("chroot")
+                        .help("Path to a \"clean\" chroot. Build will happen in the chroot.")
+                        .short("r")
+                        .long("chroot")
+                        .value_name("PATH")
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("local-build")
+                        .short("l")
+                        .long("local-build")
+                        .help("Builds package locally. Useful when used inside a container.")
+                        .takes_value(false),
                 ),
         )
         .subcommand(
@@ -68,23 +82,6 @@ fn main() {
                             Arg::with_name("CHROOT")
                                 .help("Path to the chroot to update.")
                                 .required(true), // TODO: use a default one or one from config
-                        )
-                        .arg(
-                            Arg::with_name("chroot")
-                                .help("Path to a \"clean chroot\". Build will happen in chroot.")
-                                .short("r")
-                                .long("chroot")
-                                .value_name("PATH")
-                                .takes_value(true),
-                        )
-                        .arg(
-                            Arg::with_name("local-build")
-                                .short("l")
-                                .long("local-build")
-                                .help(
-                                    "Builds package locally. Useful when used inside a container.",
-                                )
-                                .takes_value(false),
                         ),
                 ),
         )
@@ -136,6 +133,11 @@ fn main() {
         if matches.is_present("srcinfo") {
             let mut old_config = context.config().clone();
             Rc::get_mut(&mut old_config).unwrap().set_srcinfo(true);
+        }
+
+        if matches.is_present("local-build") {
+            let mut old_config = context.config().clone();
+            Rc::get_mut(&mut old_config).unwrap().set_build(Build::Local);
         }
 
         if let Some(path) = matches.value_of("PKGBUILD") {
