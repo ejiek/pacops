@@ -2,7 +2,7 @@
 name = "pacops"
 description = "PKGBUILD maintainer Swiss Army knife"
 documentation = "https://docs.rs/pacops"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["Vlad Petrov <ejiek@mail.ru>"]
 edition = "2018"
 keywords = ["pacman", "pkgbuild", "archlinux"]
