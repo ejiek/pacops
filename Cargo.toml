@@ -8,7 +8,6 @@ edition = "2018"
 keywords = ["pacman", "pkgbuild", "archlinux"]
 categories = ["command-line-utilities", "development-tools::build-utils"]
 license = "GPL-3.0-or-later"
-license-file = "LICENSE"
 readme = "README.md"
 repository = "https://github.com/ejiek/pacops"
 
