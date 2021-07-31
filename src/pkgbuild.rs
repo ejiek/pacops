@@ -1,7 +1,7 @@
 extern crate shellexpand;
 
 use crate::chroot;
-use crate::config::{Build, Config};
+use crate::settings::{Build, Settings};
 use crate::source::{Origin, Source};
 use crate::update::Update;
 
@@ -333,9 +333,9 @@ pub fn dir(path_str: &str) -> &Path {
     path
 }
 
-pub fn build(pkgbuild_dir: &Path, settings: Rc<Config>) {
+pub fn build(pkgbuild_dir: &Path, settings: &Settings) {
     match settings.build_type() {
-        Some(Build::Chroot) => {
+        Build::Chroot => {
             match settings.chroot() {
                 Some(chroot_path) => {
                     println!(
@@ -368,7 +368,7 @@ pub fn build(pkgbuild_dir: &Path, settings: Rc<Config>) {
                 }
             }
         }
-        Some(Build::Local) => {
+        Build::Local => {
             let mkpkg = Command::new("makepkg")
                 .current_dir(pkgbuild_dir.to_str().unwrap())
                 .arg("--syncdeps") // install dependencies
@@ -386,9 +386,9 @@ pub fn build(pkgbuild_dir: &Path, settings: Rc<Config>) {
     }
 }
 
-pub fn update_build_env(settings: Rc<Config>) -> Result<(), Box<dyn Error>> {
+pub fn update_build_env(settings: Settings) -> Result<(), Box<dyn Error>> {
     match settings.build_type() {
-        Some(Build::Chroot) => match settings.chroot() {
+        Build::Chroot => match settings.chroot() {
             Some(chroot_path) => chroot::update(chroot_path),
             None => {
                 let error: Box<dyn std::error::Error> =
@@ -396,7 +396,7 @@ pub fn update_build_env(settings: Rc<Config>) -> Result<(), Box<dyn Error>> {
                 Err(error)
             }
         },
-        Some(Build::Local) => {
+        Build::Local => {
             let mkpkg = Command::new("sudo")
                 .arg("pacman")
                 .arg("-Syu")

@@ -3,13 +3,13 @@ use std::error::Error;
 use std::path::PathBuf;
 use std::rc::Rc;
 
-use crate::config::Config;
 use crate::pkgbuild::Pkgbuild;
+use crate::settings::Settings;
 use crate::update::Update;
 
 // context for working with a particular PKGBUILD
 pub struct Context {
-    config: Rc<Config>,
+    config: Settings,
     pkgbuild: Option<Rc<RefCell<Pkgbuild>>>,
     pkgbuild_path: Option<PathBuf>,
     pkgname: Option<String>,
@@ -18,20 +18,15 @@ pub struct Context {
 }
 
 impl Context {
-    pub fn new(config: Rc<Config>) -> Context {
+    pub fn new(config: Settings) -> Context {
         Context {
-            config: config,
+            config,
             pkgbuild: None,
             pkgbuild_path: None,
             update: None,
             pkgname: None,
             current_version: String::from(""),
         }
-    }
-
-    pub fn set_config(mut self, config: Rc<Config>) -> Self {
-        self.config = config;
-        self
     }
 
     pub fn set_pkgbuild(mut self, pkgbuild: Rc<RefCell<Pkgbuild>>) -> Self {
@@ -59,7 +54,7 @@ impl Context {
         self
     }
 
-    pub fn config(&self) -> Rc<Config> {
+    pub fn config(&self) -> Settings {
         self.config.clone()
     }
 

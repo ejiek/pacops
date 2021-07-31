@@ -19,7 +19,7 @@ pub fn repo_root(path: &Path) -> Result<PathBuf, Box<dyn Error>> {
 }
 
 pub fn commit(context: &Context) -> Result<(), Box<dyn Error>> {
-    let message_template = context.config().commit_message().unwrap();
+    let message_template = context.config().commit_message();
     let pkgbuild_path = context.pkgbuild_path().unwrap();
     let path = pkgbuild_path.parent().unwrap();
     let message = shellexpand::env_with_context(&message_template, &context.shellexpand_context())

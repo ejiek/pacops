@@ -2,18 +2,18 @@ extern crate clap;
 extern crate reqwest;
 extern crate version_compare;
 
-use std::path::PathBuf;
 use std::rc::Rc;
+use std::{path::PathBuf, str::FromStr};
 
 use clap::{App, AppSettings, Arg, SubCommand};
 
-use crate::config::Build;
+use crate::settings::{Build, Settings};
 
 mod chroot;
-mod config;
 mod context;
 mod git;
 mod pkgbuild;
+mod settings;
 mod source;
 mod update;
 
@@ -87,36 +87,20 @@ fn main() {
         )
         .get_matches();
 
-    let mut config = Rc::new(config::Config::defaults());
+    let mut config;
 
     if let Some(config_path) = matches.value_of("config") {
-        let mut given_config = config::Config::read_from_file(PathBuf::from(config_path)).unwrap();
-        given_config.set_parent_rc(config.clone());
-        config = Rc::new(given_config);
+        config = settings::Settings::new(Some(config_path.to_string())).unwrap();
     } else {
-        match config::Config::global_config_lookup() {
-            Ok(mut global_config) => {
-                global_config.set_parent_rc(config);
-                config = Rc::new(global_config);
-            }
-            Err(_) => eprintln!("Unable to find global config"),
-        }
+        config = settings::Settings::new(None).unwrap();
     }
 
     if let Some(path) = matches.value_of("chroot") {
-        Rc::get_mut(&mut config)
-            .unwrap()
-            .set_chroot(PathBuf::from(path));
+        config.set("chroot", path);
     }
-
-    let mut context = context::Context::new(config.clone());
-
-    // check if we have any pkgbuild at this point
-    context = context.set_config(config);
 
     if let Some(matches) = matches.subcommand_matches("chroot") {
         if let Some(matches) = matches.subcommand_matches("update") {
-            let _config = context.config();
             println!(
                 "Using chroot located in: {}",
                 matches.value_of("CHROOT").unwrap()
@@ -126,23 +110,25 @@ fn main() {
 
     if let Some(matches) = matches.subcommand_matches("package") {
         if matches.is_present("commit") {
-            let mut old_config = context.config().clone();
-            Rc::get_mut(&mut old_config).unwrap().set_commit(true);
+            config.set("commit", true);
         }
 
         if matches.is_present("srcinfo") {
-            let mut old_config = context.config().clone();
-            Rc::get_mut(&mut old_config).unwrap().set_srcinfo(true);
+            config.set("srcinfo", true);
         }
 
         if matches.is_present("local-build") {
-            let mut old_config = context.config().clone();
-            Rc::get_mut(&mut old_config).unwrap().set_build(Build::Local);
+            config.set("build", "local");
         }
 
         if let Some(path) = matches.value_of("PKGBUILD") {
             let pkgbuild = pkgbuild::Pkgbuild::from_file(&path).unwrap();
+            let mut context = context::Context::new(config.clone().try_into().unwrap());
             context = context.set_pkgbuild(pkgbuild);
+            context = context.set_pkgbuild_path(PathBuf::from_str(path).unwrap());
+
+            let config: Settings = config.try_into().unwrap();
+            println!("{:?}", config);
 
             update(context)
         }
@@ -170,19 +156,19 @@ fn update(context: context::Context) {
         // test build
         let pkgbuild_dir = path.parent().unwrap();
         pkgbuild::update_build_env(config.clone()).unwrap();
-        pkgbuild::build(&pkgbuild_dir, config.clone());
-        if let Some(true) = context.config().srcinfo() {
+        pkgbuild::build(&pkgbuild_dir, &config);
+        if let true = config.srcinfo() {
             pkgbuild::srcinfo(&path).unwrap();
         }
         let pkgbuild = pkgbuild.borrow_mut();
-        let mut context = context::Context::new(config)
+        let mut context = context::Context::new(config.clone())
             .set_pkgbuild_path(path)
             // TODO: figure out a way to compose a commit message for minor updates
             .set_pkgname(pkgbuild.pkgname().clone())
             .set_current_version(current_version);
         for update in &updates {
             context = context.set_update(update);
-            if let Some(true) = context.config().commit() {
+            if let true = config.commit() {
                 git::commit(&context).unwrap();
             }
         }
