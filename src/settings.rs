@@ -23,7 +23,7 @@ pub struct Settings {
 }
 
 impl Settings {
-    pub fn new(file: Option<String>) -> Result<Config, ConfigError> {
+    pub fn builder(file: Option<String>) -> Result<Config, ConfigError> {
         let mut s = Config::default();
 
         s.set_default("build", "local")?;
@@ -46,7 +46,7 @@ impl Settings {
             }
         };
 
-        return Ok(s);
+        Ok(s)
     }
 
     pub fn commit(&self) -> bool {

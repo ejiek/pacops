@@ -2,12 +2,12 @@ extern crate clap;
 extern crate reqwest;
 extern crate version_compare;
 
-use std::rc::Rc;
+use std::error::Error;
 use std::{path::PathBuf, str::FromStr};
 
 use clap::{App, AppSettings, Arg, SubCommand};
 
-use crate::settings::{Build, Settings};
+use crate::settings::Settings;
 
 mod chroot;
 mod context;
@@ -17,7 +17,7 @@ mod settings;
 mod source;
 mod update;
 
-fn main() {
+fn main() -> Result<(), Box<dyn Error>> {
     let matches = App::new("PacOps")
         .version(clap::crate_version!())
         .author(clap::crate_authors!())
@@ -90,13 +90,13 @@ fn main() {
     let mut config;
 
     if let Some(config_path) = matches.value_of("config") {
-        config = settings::Settings::new(Some(config_path.to_string())).unwrap();
+        config = settings::Settings::builder(Some(config_path.to_string())).unwrap();
     } else {
-        config = settings::Settings::new(None).unwrap();
+        config = settings::Settings::builder(None).unwrap();
     }
 
     if let Some(path) = matches.value_of("chroot") {
-        config.set("chroot", path);
+        config.set("chroot", path)?;
     }
 
     if let Some(matches) = matches.subcommand_matches("chroot") {
@@ -110,19 +110,19 @@ fn main() {
 
     if let Some(matches) = matches.subcommand_matches("package") {
         if matches.is_present("commit") {
-            config.set("commit", true);
+            config.set("commit", true)?;
         }
 
         if matches.is_present("srcinfo") {
-            config.set("srcinfo", true);
+            config.set("srcinfo", true)?;
         }
 
         if matches.is_present("local-build") {
-            config.set("build", "local");
+            config.set("build", "local")?;
         }
 
         if let Some(path) = matches.value_of("PKGBUILD") {
-            let pkgbuild = pkgbuild::Pkgbuild::from_file(&path).unwrap();
+            let pkgbuild = pkgbuild::Pkgbuild::from_file(path).unwrap();
             let mut context = context::Context::new(config.clone().try_into().unwrap());
             context = context.set_pkgbuild(pkgbuild);
             context = context.set_pkgbuild_path(PathBuf::from_str(path).unwrap());
@@ -133,6 +133,7 @@ fn main() {
             update(context)
         }
     };
+    Ok(())
 }
 
 fn update(context: context::Context) {
@@ -152,11 +153,11 @@ fn update(context: context::Context) {
         pkgbuild.set_hash(update.source_index, new_hash).unwrap();
         pkgbuild.to_file(path.as_path().to_str().unwrap()).unwrap();
     }
-    if updates.len() > 0 {
+    if !updates.is_empty() {
         // test build
         let pkgbuild_dir = path.parent().unwrap();
         pkgbuild::update_build_env(config.clone()).unwrap();
-        pkgbuild::build(&pkgbuild_dir, &config);
+        pkgbuild::build(pkgbuild_dir, &config);
         if let true = config.srcinfo() {
             pkgbuild::srcinfo(&path).unwrap();
         }
@@ -173,7 +174,7 @@ fn update(context: context::Context) {
             }
         }
     }
-    if updates.len() > 0 {
+    if !updates.is_empty() {
         // publish (git, git subtee)
         //
         // build
