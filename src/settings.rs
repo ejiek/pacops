@@ -46,6 +46,8 @@ impl Settings {
             }
         };
 
+        s.merge(Environment::with_prefix("pacops"))?;
+
         Ok(s)
     }
 
