@@ -408,8 +408,10 @@ pub fn update_build_env(settings: Settings) -> Result<(), Box<dyn Error>> {
                 .arg("--noconfirm")
                 .output()
                 .expect("failed to execute process");
+            println!("::group::Updating build environment");
             println!("{}", str::from_utf8(&mkpkg.stdout).unwrap());
             println!("{}", str::from_utf8(&mkpkg.stderr).unwrap());
+            println!("::endgroup::");
             Ok(())
         }
         _ => {
