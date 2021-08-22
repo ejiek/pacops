@@ -26,7 +26,7 @@ impl Settings {
     pub fn builder(file: Option<String>) -> Result<Config, ConfigError> {
         let mut s = Config::default();
 
-        s.set_default("build", "local")?;
+        s.set_default("build", "Local")?;
         s.set_default("commit", "false")?;
         s.set_default(
             "commit_message",
@@ -38,13 +38,20 @@ impl Settings {
             Some(f) => {
                 s.merge(File::with_name(&f))?;
             }
-            None => {
-                if let Some(mut config_file) = dirs::config_dir() {
-                    config_file.push("pacops.toml");
-                    s.merge(File::with_name(config_file.to_str().unwrap()))?;
+            None => match env::var("PACOPS_CONFIG") {
+                Ok(path) => {
+                    s.merge(File::with_name(&path))?;
                 }
-            }
-        };
+                Err(_) => {
+                    if let Some(mut config_file) = dirs::config_dir() {
+                        config_file.push("pacops.toml");
+                        if std::path::Path::new(&config_file).exists() {
+                            s.merge(File::with_name(config_file.to_str().unwrap()))?;
+                        }
+                    }
+                }
+            },
+        }
 
         s.merge(Environment::with_prefix("pacops"))?;
 
