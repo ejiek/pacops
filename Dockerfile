@@ -14,7 +14,8 @@ LABEL version 0.0.1
 LABEL description "PacOps Archlinux based build image"
 LABEL maintainer="ejiek@mail.ru"
 
-RUN useradd --create-home --home-dir /usr/share/pacops pacops && /bin/echo -e 'Cmnd_Alias PACMAN=/usr/sbin/pacman *\npacops ALL= NOPASSWD: PACMAN' > /etc/sudoers.d/88_pacops
+RUN useradd --uid 1001 --create-home --home-dir /usr/share/pacops pacops && /bin/echo -e 'Cmnd_Alias PACMAN=/usr/sbin/pacman *\npacops ALL= NOPASSWD: PACMAN' > /etc/sudoers.d/88_pacops
+RUN pacman -Sy --noconfirm git
 
 USER pacops
 WORKDIR /usr/share/pacops
