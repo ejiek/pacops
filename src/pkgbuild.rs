@@ -234,7 +234,7 @@ impl Pkgbuild {
             Ok(file) => file,
         };
 
-        match file.write_all(&self.raw.as_bytes()) {
+        match file.write_all(self.raw.as_bytes()) {
             Err(why) => Err(Box::new(why)),
             Ok(_) => Ok(()),
         }

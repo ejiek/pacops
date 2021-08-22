@@ -11,11 +11,11 @@ pub fn latest(source: &Source) -> Result<Option<Update>, Box<dyn Error>> {
     let raw = source.raw();
     let repo_url = parent(raw);
     let packages = list(repo_url.clone())?;
-    let mut versions: Vec<Update> = packages
+    let versions: Vec<Update> = packages
         .iter()
         // filter out unrelated packages
         .map(|x| Update {
-            version: extract_version_by_template(x.to_string(), &source),
+            version: extract_version_by_template(x.to_string(), source),
             source_index: source.index,
             url: format!("{}/{}", repo_url, x.to_string()),
         })
