@@ -173,7 +173,7 @@ fn update(context: context::Context) {
             .set_current_version(current_version);
         for update in &updates {
             context = context.set_update(update);
-            if let true = config.commit() {
+            if config.commit() {
                 git::commit(&context).unwrap();
                 if config.push() {
                     git::commit(&context).unwrap();
