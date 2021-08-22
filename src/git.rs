@@ -37,8 +37,10 @@ pub fn commit(context: &Context) -> Result<(), Box<dyn Error>> {
         .arg(".SRCINFO")
         .output()
         .expect("failed to execute process");
+    println!("::group::Git Commit");
     println!("{}", str::from_utf8(&git.stdout).unwrap());
     println!("{}", str::from_utf8(&git.stderr).unwrap());
+    println!("::endgroup::");
     Ok(())
 }
 
@@ -50,7 +52,9 @@ pub fn push(context: &Context) -> Result<(), Box<dyn Error>> {
         .arg("push")
         .output()
         .expect("failed to execute process");
+    println!("::group::Git Push");
     println!("{}", str::from_utf8(&git.stdout).unwrap());
     println!("{}", str::from_utf8(&git.stderr).unwrap());
+    println!("::endgroup::");
     Ok(())
 }

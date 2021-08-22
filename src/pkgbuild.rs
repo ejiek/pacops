@@ -360,8 +360,10 @@ pub fn build(pkgbuild_dir: &Path, settings: &Settings) {
                         .stdout(Stdio::inherit())
                         .output()
                         .expect("failed to execute process");
+                    println!("::group::Building package in chroot");
                     println!("{}", str::from_utf8(&mkchrtpkg.stdout).unwrap());
                     println!("{}", str::from_utf8(&mkchrtpkg.stderr).unwrap());
+                    println!("::endgroup::");
                 }
                 None => {
                     println!("No chroot path");
@@ -379,8 +381,10 @@ pub fn build(pkgbuild_dir: &Path, settings: &Settings) {
                 .arg("--noconfirm") // pass to pacman
                 .output()
                 .expect("failed to execute process");
+            println!("::group::Building package locally");
             println!("{}", str::from_utf8(&mkpkg.stdout).unwrap());
             println!("{}", str::from_utf8(&mkpkg.stderr).unwrap());
+            println!("::endgroup::");
         }
         _ => println!("We don't support this build method, yet. Sorry!"),
     }
