@@ -176,7 +176,7 @@ fn update(context: context::Context) {
             if config.commit() {
                 git::commit(&context).unwrap();
                 if config.push() {
-                    git::commit(&context).unwrap();
+                    git::push(&context).unwrap();
                 }
             }
         }
