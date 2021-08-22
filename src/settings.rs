@@ -19,6 +19,7 @@ pub struct Settings {
     chroot: Option<PathBuf>,
     commit: bool,
     commit_message: String,
+    push: bool,
     srcinfo: bool,
 }
 
@@ -32,6 +33,7 @@ impl Settings {
             "commit_message",
             "${pkgname}: ${old_version} -> ${new_version}",
         )?;
+        s.set_default("push", "false")?;
         s.set_default("srcinfo", "false")?;
 
         match file {
@@ -64,6 +66,10 @@ impl Settings {
 
     pub fn commit_message(&self) -> String {
         self.commit_message.clone()
+    }
+
+    pub fn push(&self) -> bool {
+        self.push
     }
 
     pub fn srcinfo(&self) -> bool {

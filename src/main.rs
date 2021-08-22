@@ -113,6 +113,10 @@ fn main() -> Result<(), Box<dyn Error>> {
             config.set("commit", true)?;
         }
 
+        if matches.is_present("push") {
+            config.set("push", true)?;
+        }
+
         if matches.is_present("srcinfo") {
             config.set("srcinfo", true)?;
         }
@@ -171,6 +175,9 @@ fn update(context: context::Context) {
             context = context.set_update(update);
             if let true = config.commit() {
                 git::commit(&context).unwrap();
+                if config.push() {
+                    git::commit(&context).unwrap();
+                }
             }
         }
     }

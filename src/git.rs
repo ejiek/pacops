@@ -41,3 +41,16 @@ pub fn commit(context: &Context) -> Result<(), Box<dyn Error>> {
     println!("{}", str::from_utf8(&git.stderr).unwrap());
     Ok(())
 }
+
+pub fn push(context: &Context) -> Result<(), Box<dyn Error>> {
+    let pkgbuild_path = context.pkgbuild_path().unwrap();
+    let path = pkgbuild_path.parent().unwrap();
+    let git = Command::new("git")
+        .current_dir(path.to_str().unwrap())
+        .arg("push")
+        .output()
+        .expect("failed to execute process");
+    println!("{}", str::from_utf8(&git.stdout).unwrap());
+    println!("{}", str::from_utf8(&git.stderr).unwrap());
+    Ok(())
+}
